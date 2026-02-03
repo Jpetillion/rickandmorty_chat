@@ -18,19 +18,6 @@ def load_css(file_path):
 css_path = Path(__file__).parent / "assets" / "styles.css"
 load_css(css_path)
 
-# Load audio system JavaScript - inject into main DOM (NOT iframe)
-audio_js_path = Path(__file__).parent / "assets" / "audio.js"
-audio_js_content = audio_js_path.read_text(encoding="utf-8")
-
-st.markdown(f"""
-<script>
-if (!window.__RICK_PORTAL_AUDIO_LOADED) {{
-  window.__RICK_PORTAL_AUDIO_LOADED = true;
-  {audio_js_content}
-}}
-</script>
-""", unsafe_allow_html=True)
-
 # Chat history persistent storage
 HISTORY_FILE = Path(__file__).parent / "chat_history.json"
 
@@ -207,44 +194,7 @@ with form:
                         <span id='response-text'>{response.replace('\n', '<br>')}</span>
                     </p>
                 </div>
-                <div style='text-align: center; margin: 20px 0;'>
-                    <button id='read-aloud-btn' class='rick-read-aloud-btn'>
-                        <i class="fas fa-volume-up"></i> RICK LEEST VOOR
-                    </button>
-                </div>
             """, unsafe_allow_html=True)
-
-            # Setup read-aloud button - inject into main DOM
-            st.markdown("""
-<script>
-(function() {
-    function setupReadAloudButton() {
-        const btn = document.getElementById('read-aloud-btn');
-        const responseText = document.getElementById('response-text');
-
-        if (!btn || !responseText) {
-            return;
-        }
-
-        btn.onclick = function() {
-            console.log('🎙️ Read aloud button clicked!');
-            const text = responseText.innerText || responseText.textContent;
-            if (typeof window.rickSpeakText === 'function') {
-                window.rickSpeakText(text);
-            } else {
-                console.error('❌ window.rickSpeakText not available');
-            }
-        };
-
-        console.log('✅ Read aloud button ready!');
-    }
-
-    setTimeout(setupReadAloudButton, 100);
-    setTimeout(setupReadAloudButton, 500);
-    setTimeout(setupReadAloudButton, 1000);
-})();
-</script>
-""", unsafe_allow_html=True)
 
 # Chat History Display in Main Page
 st.markdown("""

@@ -204,11 +204,12 @@ h3 {
 /* Input Container Spacing */
 .stTextInput, .stSelectbox {
     margin-bottom: 30px !important;
-    padding: 15px !important;
+    padding: 15px 15px 20px 15px !important;
     background: rgba(0, 0, 0, 0.3) !important;
     border-radius: 15px !important;
     position: relative;
     z-index: 1;
+    overflow: visible !important;
 }
 
 /* Text Input - Portal Entry */
@@ -219,16 +220,18 @@ h3 {
     color: #00ff41 !important;
     font-family: 'Courier New', monospace !important;
     font-size: 1rem !important;
-    padding: 15px 20px !important;
-    min-height: 50px !important;
-    height: auto !important;
-    line-height: 1.5 !important;
+    padding: 14px 20px 14px 20px !important;
+    min-height: 48px !important;
+    height: 48px !important;
+    line-height: normal !important;
     box-shadow:
         0 0 20px rgba(0, 217, 255, 0.4),
         inset 0 0 15px rgba(0, 255, 65, 0.1) !important;
     transition: all 0.3s ease !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    overflow: visible !important;
+    vertical-align: middle !important;
 }
 
 .stTextInput input:focus {
@@ -255,10 +258,10 @@ h3 {
     color: #00ff41 !important;
     font-family: 'Courier New', monospace !important;
     font-size: 1rem !important;
-    padding: 15px 20px !important;
-    min-height: 50px !important;
-    height: auto !important;
-    line-height: 1.5 !important;
+    padding: 14px 45px 14px 20px !important;
+    min-height: 48px !important;
+    height: 48px !important;
+    line-height: normal !important;
     box-shadow:
         0 0 20px rgba(0, 217, 255, 0.4),
         inset 0 0 15px rgba(0, 255, 65, 0.1) !important;
@@ -272,8 +275,9 @@ h3 {
     background-repeat: no-repeat !important;
     background-position: right 15px center !important;
     background-size: 20px !important;
-    padding-right: 45px !important;
     box-sizing: border-box !important;
+    overflow: visible !important;
+    vertical-align: middle !important;
 }
 
 .stSelectbox select:hover {
@@ -304,14 +308,36 @@ h3 {
     transform: scale(1.01) !important;
 }
 
+/* Dropdown options menu styling */
+.stSelectbox select option {
+    background: rgba(10, 14, 39, 0.98) !important;
+    color: #00ff41 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 1rem !important;
+    padding: 12px 20px !important;
+    border: none !important;
+}
+
+.stSelectbox select option:hover,
+.stSelectbox select option:checked,
+.stSelectbox select option:focus {
+    background: linear-gradient(90deg, rgba(0, 217, 255, 0.2), rgba(0, 255, 65, 0.2)) !important;
+    color: #00d9ff !important;
+    outline: none !important;
+}
+
 /* Dropdown arrow icon styling */
 .stSelectbox > div > div {
     background: transparent !important;
+    overflow: visible !important;
 }
 
 .stSelectbox [data-baseweb="select"] > div {
     background: rgba(10, 14, 39, 0.95) !important;
-    border: 2px solid #ff00de !important;
+    border: 2px solid #00d9ff !important;
+    border-radius: 12px !important;
+    min-height: 48px !important;
+    overflow: visible !important;
 }
 
 /* Submit Button - Portal Activator */

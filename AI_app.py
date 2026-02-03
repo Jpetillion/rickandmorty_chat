@@ -3,6 +3,7 @@ from chatbot_functies import chatbot_response
 from PIL import Image
 import time
 from pathlib import Path
+import json
 
 # 🌀 RICK & MORTY PSYCHEDELIC PORTAL STYLING 🌀
 st.set_page_config(page_title="Rick's Interdimensional Portal", page_icon="🛸", layout="wide")
@@ -17,179 +18,37 @@ def load_css(file_path):
 css_path = Path(__file__).parent / "assets" / "styles.css"
 load_css(css_path)
 
-# Load audio system JavaScript directly into page (not iframe)
+# Load audio system JavaScript - inject into main DOM (NOT iframe)
 audio_js_path = Path(__file__).parent / "assets" / "audio.js"
-with open(audio_js_path) as f:
-    audio_js_content = f.read()
-    st.markdown(f"""
-        <script>
-        {audio_js_content}
-        </script>
-    """, unsafe_allow_html=True)
+audio_js_content = audio_js_path.read_text(encoding="utf-8")
 
-# Initialize session state for chat history
+st.markdown(f"""
+<script>
+if (!window.__RICK_PORTAL_AUDIO_LOADED) {{
+  window.__RICK_PORTAL_AUDIO_LOADED = true;
+  {audio_js_content}
+}}
+</script>
+""", unsafe_allow_html=True)
+
+# Chat history persistent storage
+HISTORY_FILE = Path(__file__).parent / "chat_history.json"
+
+# Load chat history from file on first run
+if "history_loaded" not in st.session_state:
+    st.session_state.history_loaded = True
+    if HISTORY_FILE.exists():
+        try:
+            st.session_state.chat_history = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+        except:
+            st.session_state.chat_history = []
+    else:
+        st.session_state.chat_history = []
+
+# Initialize session state for chat history (if not loaded from file)
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
-# Initialize audio mute state
-if 'audio_muted' not in st.session_state:
-    st.session_state.audio_muted = False
-
-# Sidebar for Portal History
-with st.sidebar:
-    st.markdown("""
-        <h2 style='
-            text-align: center;
-            color: #00ff41;
-            font-family: "Bungee", cursive;
-            font-size: 1.5rem;
-            text-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
-            margin-bottom: 20px;
-        '>
-            <i class="fas fa-history" style='margin-right: 10px;'></i>
-            PORTAL HISTORY
-        </h2>
-    """, unsafe_allow_html=True)
-
-    # Audio control button
-    audio_icon = "🔇" if st.session_state.audio_muted else "🔊"
-    audio_text = "Unmute Portal Audio" if st.session_state.audio_muted else "Mute Portal Audio"
-
-    if st.button(f"{audio_icon} {audio_text}", use_container_width=True, key="audio_toggle"):
-        st.session_state.audio_muted = not st.session_state.audio_muted
-        st.markdown("""
-            <script>
-                if (typeof window.togglePortalAudio === 'function') {
-                    window.togglePortalAudio();
-                }
-            </script>
-        """, unsafe_allow_html=True)
-        st.rerun()
-
-    st.markdown("<hr style='border: 1px solid rgba(0, 255, 65, 0.3); margin: 20px 0;'>", unsafe_allow_html=True)
-
-    if st.session_state.chat_history:
-        if st.button("🗑️ Clear All Dimensions", use_container_width=True):
-            st.session_state.chat_history = []
-            st.rerun()
-
-        st.markdown("<hr style='border: 1px solid rgba(0, 255, 65, 0.3); margin: 20px 0;'>", unsafe_allow_html=True)
-
-        # Display history in reverse order (newest first)
-        for idx, entry in enumerate(reversed(st.session_state.chat_history)):
-            with st.expander(f"🌀 Query #{len(st.session_state.chat_history) - idx}"):
-                st.markdown(f"""
-                    <div style='
-                        background: rgba(0, 0, 0, 0.3);
-                        padding: 10px;
-                        border-radius: 8px;
-                        margin-bottom: 10px;
-                    '>
-                        <p style='
-                            color: #00d9ff;
-                            font-family: "Courier New", monospace;
-                            font-size: 0.85rem;
-                            margin: 0;
-                        '>
-                            <strong style='color: #00ff41;'>Q:</strong> {entry['question']}
-                        </p>
-                    </div>
-                    <div style='
-                        background: rgba(0, 0, 0, 0.3);
-                        padding: 10px;
-                        border-radius: 8px;
-                        margin-bottom: 10px;
-                    '>
-                        <p style='
-                            color: #ff00de;
-                            font-family: "Courier New", monospace;
-                            font-size: 0.8rem;
-                            margin: 0;
-                        '>
-                            <strong style='color: #00d9ff;'>Target:</strong> {entry['character']}
-                        </p>
-                    </div>
-                    <div style='
-                        background: rgba(0, 255, 65, 0.05);
-                        padding: 10px;
-                        border-radius: 8px;
-                        border-left: 3px solid #00ff41;
-                    '>
-                        <p style='
-                            color: #00d9ff;
-                            font-family: "Courier New", monospace;
-                            font-size: 0.85rem;
-                            line-height: 1.6;
-                            margin: 0;
-                        '>
-                            <strong style='color: #00ff41;'>A:</strong> {entry['response']}
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-            <div style='
-                text-align: center;
-                padding: 30px 20px;
-                background: rgba(0, 0, 0, 0.3);
-                border-radius: 10px;
-                border: 2px dashed rgba(0, 255, 65, 0.3);
-            '>
-                <p style='
-                    color: #00d9ff;
-                    font-family: "Press Start 2P", monospace;
-                    font-size: 0.7rem;
-                    line-height: 1.8;
-                '>
-                    No portal jumps yet...<br>
-                    Start asking questions!
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
-
-# Floating Sidebar Toggle Button - Fixed implementation
-st.markdown("""
-    <div id="sidebar-toggle-btn" class="sidebar-toggle-visible" title="Toggle Portal History">
-        ☰
-    </div>
-    <script>
-    (function() {
-        function setupSidebarToggle() {
-            const toggleBtn = document.getElementById('sidebar-toggle-btn');
-            if (!toggleBtn) return;
-
-            // Remove old listeners
-            const newBtn = toggleBtn.cloneNode(true);
-            toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
-
-            newBtn.addEventListener('click', function() {
-                const sidebar = document.querySelector('[data-testid="stSidebar"]');
-                const collapseBtn = document.querySelector('[data-testid="collapsedControl"]');
-
-                if (collapseBtn) {
-                    collapseBtn.click();
-                } else if (sidebar) {
-                    // Force visibility
-                    sidebar.style.transform = 'translateX(0)';
-                    sidebar.style.marginLeft = '0';
-                    sidebar.style.display = 'block';
-                    sidebar.setAttribute('aria-expanded', 'true');
-                }
-            });
-        }
-
-        // Setup on load
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', setupSidebarToggle);
-        } else {
-            setupSidebarToggle();
-        }
-
-        // Re-setup after Streamlit reruns
-        setTimeout(setupSidebarToggle, 100);
-    })();
-    </script>
-""", unsafe_allow_html=True)
 
 # Portal Title with Font Awesome Icons
 st.markdown("""
@@ -332,6 +191,12 @@ with form:
                 'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
             })
 
+            # Save to persistent file
+            HISTORY_FILE.write_text(
+                json.dumps(st.session_state.chat_history, ensure_ascii=False, indent=2),
+                encoding="utf-8"
+            )
+
             # Response with dramatic reveal
             st.markdown(f"""
                 <div class='response-box' id='latest-response'>
@@ -343,28 +208,90 @@ with form:
                     </p>
                 </div>
                 <div style='text-align: center; margin: 20px 0;'>
-                    <button id='read-aloud-btn' onclick='window.rickSpeakText(document.getElementById("response-text").innerText)'
-                        style='
-                            background: linear-gradient(45deg, #ff00de, #00d9ff);
-                            border: 3px solid #ff00de;
-                            border-radius: 30px;
-                            color: #0a0e27;
-                            font-family: "Bungee", cursive;
-                            font-size: 1.2rem;
-                            font-weight: bold;
-                            padding: 15px 40px;
-                            cursor: pointer;
-                            box-shadow: 0 0 20px rgba(255, 0, 222, 0.6), 0 0 40px rgba(0, 217, 255, 0.4);
-                            transition: all 0.3s ease;
-                            text-transform: uppercase;
-                            letter-spacing: 2px;
-                        '
-                        onmouseover='this.style.transform="scale(1.05)"; this.style.boxShadow="0 0 30px rgba(255, 0, 222, 0.8), 0 0 60px rgba(0, 217, 255, 0.6)"'
-                        onmouseout='this.style.transform="scale(1)"; this.style.boxShadow="0 0 20px rgba(255, 0, 222, 0.6), 0 0 40px rgba(0, 217, 255, 0.4)"'>
+                    <button id='read-aloud-btn' class='rick-read-aloud-btn'>
                         <i class="fas fa-volume-up"></i> RICK LEEST VOOR
                     </button>
                 </div>
             """, unsafe_allow_html=True)
+
+            # Setup read-aloud button - inject into main DOM
+            st.markdown("""
+<script>
+(function() {
+    function setupReadAloudButton() {
+        const btn = document.getElementById('read-aloud-btn');
+        const responseText = document.getElementById('response-text');
+
+        if (!btn || !responseText) {
+            return;
+        }
+
+        btn.onclick = function() {
+            console.log('🎙️ Read aloud button clicked!');
+            const text = responseText.innerText || responseText.textContent;
+            if (typeof window.rickSpeakText === 'function') {
+                window.rickSpeakText(text);
+            } else {
+                console.error('❌ window.rickSpeakText not available');
+            }
+        };
+
+        console.log('✅ Read aloud button ready!');
+    }
+
+    setTimeout(setupReadAloudButton, 100);
+    setTimeout(setupReadAloudButton, 500);
+    setTimeout(setupReadAloudButton, 1000);
+})();
+</script>
+""", unsafe_allow_html=True)
+
+# Chat History Display in Main Page
+st.markdown("""
+    <h2 style='
+        text-align: center;
+        color: #00ff41;
+        font-family: "Bungee", cursive;
+        font-size: 1.8rem;
+        text-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+        margin: 60px 0 30px 0;
+    '>
+        <i class="fas fa-history" style='margin-right: 10px;'></i>
+        CHAT HISTORY
+        <i class="fas fa-history" style='margin-left: 10px;'></i>
+    </h2>
+""", unsafe_allow_html=True)
+
+if st.session_state.chat_history:
+    # Clear button
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        if st.button("🗑️ Clear All History", use_container_width=True, type="primary"):
+            st.session_state.chat_history = []
+            if HISTORY_FILE.exists():
+                HISTORY_FILE.unlink()
+            st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    for entry in reversed(st.session_state.chat_history):
+        st.markdown(f"""
+        <div class='response-box'>
+          <p style='color: #00d9ff; margin-bottom: 10px;'>
+            <strong style='color: #00ff41;'>Q:</strong> {entry['question']}
+          </p>
+          <p style='color: #ff00de; margin-bottom: 10px;'>
+            <strong style='color: #00d9ff;'>Target:</strong> {entry['character']}
+          </p>
+          <p style='color: #00d9ff; margin-bottom: 10px;'>
+            <strong style='color: #00ff41;'>A:</strong><br>{entry['response'].replace('\n','<br>')}
+          </p>
+          <p style='opacity: 0.6; font-size: 0.8rem; color: #00d9ff;'>
+            {entry.get('timestamp','')}
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+else:
+    st.info("🌀 Nog geen chat history. Start asking questions!")
 
 # Footer with glowing effect
 st.markdown("""

@@ -10,13 +10,18 @@ class PortalAudioSystem {
     }
 
     init() {
+        console.log('🔧 PortalAudioSystem.init() called');
         // Initialize Audio Context on first user interaction
         document.addEventListener('click', () => {
             if (!this.audioContext) {
+                console.log('🎵 First click detected, creating AudioContext...');
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log('✅ AudioContext created:', this.audioContext);
                 this.startAmbientLoop();
+                console.log('✅ Ambient loop started');
             }
         }, { once: true });
+        console.log('✅ Click listener registered for AudioContext initialization');
     }
 
     // Ambient background loop - glitchy space electronica
@@ -279,10 +284,17 @@ class PortalAudioSystem {
 }
 
 // Initialize audio system
+console.log('🎵 Initializing Portal Audio System...');
 const portalAudio = new PortalAudioSystem();
+console.log('✅ Portal Audio System created:', portalAudio);
+
+// Expose globally immediately
+window.portalAudio = portalAudio;
+console.log('✅ window.portalAudio exposed');
 
 // Event listeners for Streamlit elements
 function setupAudioListeners() {
+    console.log('🔧 Setting up audio event listeners...');
     // Button clicks - Portal Activation
     document.addEventListener('click', (e) => {
         const button = e.target.closest('button[kind="formSubmit"]');
@@ -348,12 +360,16 @@ function setupAudioListeners() {
         childList: true,
         subtree: true
     });
+
+    console.log('✅ Audio event listeners setup complete!');
 }
 
 // Wait for DOM to be ready
 if (document.readyState === 'loading') {
+    console.log('⏳ Waiting for DOM to load...');
     document.addEventListener('DOMContentLoaded', setupAudioListeners);
 } else {
+    console.log('✅ DOM already loaded, setting up listeners...');
     setupAudioListeners();
 }
 
@@ -448,15 +464,28 @@ class RickVoice {
 }
 
 // Initialize Rick voice
+console.log('🗣️ Initializing Rick Voice...');
 const rickVoice = new RickVoice();
+console.log('✅ Rick Voice created:', rickVoice);
 
 // Load voices (Chrome needs this)
 if (window.speechSynthesis) {
     window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
+        const voices = window.speechSynthesis.getVoices();
+        console.log('🔊 Voices loaded:', voices.length, 'voices available');
     };
 }
 
 // Expose globally
-window.rickSpeakText = (text) => rickVoice.speak(text);
-window.rickStopSpeaking = () => rickVoice.stop();
+window.rickSpeakText = (text) => {
+    console.log('🎙️ rickSpeakText called with:', text ? text.substring(0, 50) + '...' : 'empty');
+    return rickVoice.speak(text);
+};
+window.rickStopSpeaking = () => {
+    console.log('🛑 rickStopSpeaking called');
+    return rickVoice.stop();
+};
+
+console.log('✅ window.rickSpeakText exposed');
+console.log('✅ window.rickStopSpeaking exposed');
+console.log('🎵 Portal Audio System fully initialized!');

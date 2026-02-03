@@ -350,11 +350,58 @@ select option:focus,
     font-weight: bold !important;
 }
 
+/* Streamlit's custom selectbox dropdown menu (React component) */
+[data-baseweb="popover"] {
+    background: #0a0e27 !important;
+    border: 2px solid #00d9ff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.6) !important;
+}
+
+[data-baseweb="menu"] {
+    background: #0a0e27 !important;
+}
+
+[data-baseweb="menu"] li,
+[role="option"] {
+    background: #0a0e27 !important;
+    color: #00ff41 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 1rem !important;
+    padding: 12px 20px !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-baseweb="menu"] li:hover,
+[role="option"]:hover,
+[role="option"][aria-selected="true"] {
+    background: #1a1f3a !important;
+    background-color: #1a1f3a !important;
+    color: #00d9ff !important;
+}
+
+[role="option"] span {
+    color: inherit !important;
+    font-family: 'Courier New', monospace !important;
+}
+
 /* Force font in select dropdown for all browsers */
 .stSelectbox select,
 select {
     font-family: 'Courier New', monospace !important;
     color: #00ff41 !important;
+}
+
+/* Selected value in selectbox (the text shown) */
+.stSelectbox [data-baseweb="select"] span,
+.stSelectbox [data-baseweb="select"] div {
+    color: #00ff41 !important;
+    font-family: 'Courier New', monospace !important;
+}
+
+.stSelectbox [data-baseweb="select"] input {
+    color: #00ff41 !important;
+    font-family: 'Courier New', monospace !important;
 }
 
 /* Dropdown arrow icon styling */
@@ -369,6 +416,12 @@ select {
     border-radius: 12px !important;
     min-height: 48px !important;
     overflow: visible !important;
+}
+
+/* Target the selected text specifically */
+.stSelectbox [data-baseweb="select"] [role="button"] {
+    color: #00ff41 !important;
+    font-family: 'Courier New', monospace !important;
 }
 
 /* Submit Button - COMPLETELY INSANE Portal Activator */
@@ -522,6 +575,34 @@ select {
     100% { transform: scale(1.3); opacity: 1; }
 }
 
+/* Rick Read Aloud Button */
+.rick-read-aloud-btn {
+    background: linear-gradient(45deg, #ff00de, #00d9ff) !important;
+    border: 3px solid #ff00de !important;
+    border-radius: 30px !important;
+    color: #0a0e27 !important;
+    font-family: "Bungee", cursive !important;
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+    padding: 15px 40px !important;
+    cursor: pointer !important;
+    box-shadow: 0 0 20px rgba(255, 0, 222, 0.6), 0 0 40px rgba(0, 217, 255, 0.4) !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+    margin: 20px auto !important;
+    display: inline-block !important;
+}
+
+.rick-read-aloud-btn:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 30px rgba(255, 0, 222, 0.8), 0 0 60px rgba(0, 217, 255, 0.6) !important;
+}
+
+.rick-read-aloud-btn:active {
+    transform: scale(0.98) !important;
+}
+
 /* Response Container - Cleaner Design */
 .response-box {
     background: linear-gradient(135deg, rgba(0, 255, 65, 0.08), rgba(0, 217, 255, 0.08)) !important;
@@ -596,24 +677,32 @@ select {
     box-shadow: none !important;
 }
 
-/* Spinner - Portal Loading */
-.stSpinner {
-    position: relative;
-    text-align: center;
+/* Center Streamlit spinner overlay */
+div[data-testid="stSpinner"] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 999999 !important;
+}
+
+div[data-testid="stSpinner"] > div {
+    background: rgba(0,0,0,0.65) !important;
+    padding: 18px 22px !important;
+    border-radius: 14px !important;
+    border: 2px solid rgba(0,255,65,0.4) !important;
+    box-shadow: 0 0 30px rgba(0,255,65,0.35) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 120px !important;
+    min-width: 120px !important;
+    position: relative !important;
 }
 
 /* Hide the spinning text */
 .stSpinner > div > div {
     display: none !important;
-}
-
-/* Custom portal spinner */
-.stSpinner > div {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    min-height: 100px !important;
-    position: relative !important;
 }
 
 .stSpinner > div::before {

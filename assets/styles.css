@@ -201,14 +201,24 @@ h3 {
     text-transform: uppercase !important;
 }
 
-/* Input Container Spacing */
+/* Input Container Spacing - FIX CLIPPING */
 .stTextInput, .stSelectbox {
     margin-bottom: 30px !important;
-    padding: 15px 15px 20px 15px !important;
+    padding: 20px !important;
     background: rgba(0, 0, 0, 0.3) !important;
     border-radius: 15px !important;
     position: relative;
     z-index: 1;
+    overflow: visible !important;
+}
+
+.stTextInput > div,
+.stSelectbox > div {
+    overflow: visible !important;
+}
+
+.stTextInput > div > div,
+.stSelectbox > div > div {
     overflow: visible !important;
 }
 
@@ -308,22 +318,32 @@ h3 {
     transform: scale(1.01) !important;
 }
 
-/* Dropdown options menu styling */
-.stSelectbox select option {
-    background: rgba(10, 14, 39, 0.98) !important;
+/* Dropdown options menu styling - Browser native (limited) */
+select option {
+    background-color: rgba(10, 14, 39, 0.98) !important;
     color: #00ff41 !important;
     font-family: 'Courier New', monospace !important;
     font-size: 1rem !important;
-    padding: 12px 20px !important;
-    border: none !important;
+    padding: 10px !important;
 }
 
-.stSelectbox select option:hover,
-.stSelectbox select option:checked,
-.stSelectbox select option:focus {
-    background: linear-gradient(90deg, rgba(0, 217, 255, 0.2), rgba(0, 255, 65, 0.2)) !important;
+select option:checked {
+    background-color: rgba(0, 217, 255, 0.3) !important;
     color: #00d9ff !important;
-    outline: none !important;
+}
+
+.stSelectbox select option {
+    background-color: rgba(10, 14, 39, 0.98) !important;
+    color: #00ff41 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 1rem !important;
+    padding: 10px !important;
+}
+
+.stSelectbox select option:checked {
+    background: linear-gradient(90deg, rgba(0, 217, 255, 0.4), rgba(0, 255, 65, 0.4)) !important;
+    color: #00d9ff !important;
+    font-weight: bold !important;
 }
 
 /* Dropdown arrow icon styling */

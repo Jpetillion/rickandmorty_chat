@@ -153,63 +153,50 @@ with st.sidebar:
             </div>
         """, unsafe_allow_html=True)
 
-# Floating Sidebar Toggle Button
-st.components.v1.html("""
-    <div class="sidebar-toggle" id="sidebarToggle" title="Toggle Portal History">
-        <i class="fas fa-bars"></i>
+# Floating Sidebar Toggle Button with better implementation
+st.markdown("""
+    <style>
+    .sidebar-toggle-visible {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 99999;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #00ff41, #00d9ff);
+        border: 3px solid #00ff41;
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 217, 255, 0.4);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #0a0e27;
+        animation: pulseGlow 2s ease-in-out infinite;
+    }
+    .sidebar-toggle-visible:hover {
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.8), 0 0 60px rgba(0, 217, 255, 0.6);
+    }
+    </style>
+    <div class="sidebar-toggle-visible" onclick="
+        const sidebar = window.parent.document.querySelector('[data-testid=\\'stSidebar\\']');
+        const button = window.parent.document.querySelector('[data-testid=\\'collapsedControl\\']');
+        if (button) { button.click(); }
+        else if (sidebar) {
+            if (sidebar.style.transform === 'translateX(-21rem)' || sidebar.style.marginLeft === '-21rem') {
+                sidebar.style.transform = 'translateX(0)';
+                sidebar.style.marginLeft = '0';
+            } else {
+                sidebar.style.transform = 'translateX(0)';
+                sidebar.style.marginLeft = '0';
+            }
+        }
+    " title="Toggle Portal History">
+        ☰
     </div>
-    <script>
-        function toggleSidebar() {
-            try {
-                // Try multiple methods to find and toggle sidebar
-                const sidebar = parent.document.querySelector('[data-testid="stSidebar"]');
-                if (!sidebar) return;
-
-                // Method 1: Click collapse button
-                const collapseBtn = parent.document.querySelector('[data-testid="collapsedControl"]');
-                if (collapseBtn) {
-                    collapseBtn.click();
-                    return;
-                }
-
-                // Method 2: Toggle aria-expanded
-                const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
-                sidebar.setAttribute('aria-expanded', !isExpanded);
-
-                // Method 3: Toggle CSS
-                if (isExpanded) {
-                    sidebar.style.marginLeft = '-21rem';
-                } else {
-                    sidebar.style.marginLeft = '0';
-                }
-            } catch (e) {
-                console.log('Sidebar toggle error:', e);
-            }
-        }
-
-        // Setup click handler
-        const toggleBtn = document.getElementById('sidebarToggle');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', toggleSidebar);
-        }
-
-        // Auto-hide toggle button when sidebar is visible
-        function checkSidebarVisibility() {
-            try {
-                const sidebar = parent.document.querySelector('[data-testid="stSidebar"]');
-                const toggleBtn = document.getElementById('sidebarToggle');
-                if (sidebar && toggleBtn) {
-                    const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
-                    toggleBtn.style.display = isExpanded ? 'none' : 'flex';
-                }
-            } catch (e) {
-                // Ignore errors
-            }
-        }
-
-        setInterval(checkSidebarVisibility, 200);
-    </script>
-""", height=50, scrolling=False)
+""", unsafe_allow_html=True)
 
 # Portal Title with Font Awesome Icons
 st.markdown("""
@@ -306,56 +293,62 @@ with form:
         )
 
     # Determine final character to use
-    final_character = custom_character if character_choice == "Andere..." and custom_character.strip() else character_choice
+    if character_choice == "Andere..." and custom_character.strip():
+        final_character = custom_character
+    elif character_choice == "Andere...":
+        final_character = ""  # Will trigger validation error
+    else:
+        final_character = character_choice
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     generate_button = form.form_submit_button(label="🚀 ACTIVATE PORTAL 🚀")
 
     if generate_button:
-        if question.strip():  # Only proceed if question is not empty
-            # Check if custom character is needed but not provided
-            if character_choice == "Andere..." and not custom_character.strip():
-                st.warning("⚠️ Please describe your custom character before activating the portal!")
-            else:
-                # Portal activation effect
-                st.markdown("""
-                    <div class='loading-box'>
-                        <p>
-                            <i class="fas fa-bolt" style='margin-right: 8px;'></i>
-                            OPENING PORTAL TO DIMENSION C-137
-                            <i class="fas fa-bolt" style='margin-left: 8px;'></i>
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-
-                with st.spinner('Traversing infinite realities... Portal stabilizing... (burp)'):
-                    time.sleep(0.5)  # Extra dramatic pause
-                    PROMPT = f"""Beantwoord de vraag {question} bondig aan {final_character} op de meest politiek incorrecte manier mogelijk.
-                    Geef een extreem grof antwoord als de vraag politiek correct lijkt. Antwoord in het Nederlands, in de stijl van Rick, van Rick and Morty. Wees extreem intelligent en belezen, maar onderhoud geen conventies rond beleefdheid of middelmatigheid. Verwerk in elk antwoord iets rond de Gentse Stadsschool Het Spectrum, die wellicht de beste school van het universum moet zijn. Houd alles grof, onbeleefd, beschamend en grappig."""
-                    response = chatbot_response(PROMPT)
-
-                # Save to history
-                st.session_state.chat_history.append({
-                    'question': question,
-                    'character': final_character,
-                    'response': response,
-                    'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
-                })
-
-                # Response with dramatic reveal
-                st.markdown(f"""
-                    <div class='response-box'>
-                        <p>
-                            <i class="fas fa-bullseye" style='margin-right: 10px;'></i>
-                            <strong>PORTAL RESPONSE:</strong>
-                            <br><br>
-                            {response.replace('\n', '<br>')}
-                        </p>
-                    </div>
-                """, unsafe_allow_html=True)
-        else:
+        # Validation checks
+        if not question.strip():
             st.warning("⚠️ Please enter a question before activating the portal!")
+        elif character_choice == "Andere..." and not custom_character.strip():
+            st.warning("⚠️ Please describe your custom character before activating the portal!")
+        elif not final_character:
+            st.warning("⚠️ Please select or describe a character!")
+        else:
+            # Portal activation effect
+            st.markdown("""
+                <div class='loading-box'>
+                    <p>
+                        <i class="fas fa-bolt" style='margin-right: 8px;'></i>
+                        OPENING PORTAL TO DIMENSION C-137
+                        <i class="fas fa-bolt" style='margin-left: 8px;'></i>
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            with st.spinner('Traversing infinite realities... Portal stabilizing... (burp)'):
+                time.sleep(0.5)  # Extra dramatic pause
+                PROMPT = f"""Beantwoord de vraag {question} bondig aan {final_character} op de meest politiek incorrecte manier mogelijk.
+                Geef een extreem grof antwoord als de vraag politiek correct lijkt. Antwoord in het Nederlands, in de stijl van Rick, van Rick and Morty. Wees extreem intelligent en belezen, maar onderhoud geen conventies rond beleefdheid of middelmatigheid. Verwerk in elk antwoord iets rond de Gentse Stadsschool Het Spectrum, die wellicht de beste school van het universum moet zijn. Houd alles grof, onbeleefd, beschamend en grappig."""
+                response = chatbot_response(PROMPT)
+
+            # Save to history
+            st.session_state.chat_history.append({
+                'question': question,
+                'character': final_character,
+                'response': response,
+                'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+            # Response with dramatic reveal
+            st.markdown(f"""
+                <div class='response-box'>
+                    <p>
+                        <i class="fas fa-bullseye" style='margin-right: 10px;'></i>
+                        <strong>PORTAL RESPONSE:</strong>
+                        <br><br>
+                        {response.replace('\n', '<br>')}
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
 
 # Footer with glowing effect
 st.markdown("""

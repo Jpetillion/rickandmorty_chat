@@ -320,32 +320,41 @@ h3 {
     transform: scale(1.01) !important;
 }
 
-/* Dropdown options menu styling - Browser native (limited) */
-select option {
-    background-color: rgba(10, 14, 39, 0.98) !important;
+/* Dropdown options menu styling - Enhanced */
+select option,
+.stSelectbox select option {
+    background: #0a0e27 !important;
+    background-color: #0a0e27 !important;
     color: #00ff41 !important;
     font-family: 'Courier New', monospace !important;
     font-size: 1rem !important;
-    padding: 10px !important;
+    font-weight: normal !important;
+    padding: 12px 20px !important;
+    min-height: 40px !important;
 }
 
-select option:checked {
+select option:hover,
+.stSelectbox select option:hover {
+    background: #1a1f3a !important;
+    background-color: #1a1f3a !important;
+    color: #00d9ff !important;
+}
+
+select option:checked,
+select option:focus,
+.stSelectbox select option:checked,
+.stSelectbox select option:focus {
+    background: linear-gradient(90deg, rgba(0, 217, 255, 0.3), rgba(0, 255, 65, 0.3)) !important;
     background-color: rgba(0, 217, 255, 0.3) !important;
     color: #00d9ff !important;
-}
-
-.stSelectbox select option {
-    background-color: rgba(10, 14, 39, 0.98) !important;
-    color: #00ff41 !important;
-    font-family: 'Courier New', monospace !important;
-    font-size: 1rem !important;
-    padding: 10px !important;
-}
-
-.stSelectbox select option:checked {
-    background: linear-gradient(90deg, rgba(0, 217, 255, 0.4), rgba(0, 255, 65, 0.4)) !important;
-    color: #00d9ff !important;
     font-weight: bold !important;
+}
+
+/* Force font in select dropdown for all browsers */
+.stSelectbox select,
+select {
+    font-family: 'Courier New', monospace !important;
+    color: #00ff41 !important;
 }
 
 /* Dropdown arrow icon styling */
@@ -748,11 +757,12 @@ select option:checked {
 }
 
 /* Floating Sidebar Toggle Button */
-.sidebar-toggle {
+.sidebar-toggle,
+.sidebar-toggle-visible {
     position: fixed;
     top: 20px;
     left: 20px;
-    z-index: 9999;
+    z-index: 99999 !important;
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -771,7 +781,8 @@ select option:checked {
     animation: pulseGlow 2s ease-in-out infinite;
 }
 
-.sidebar-toggle:hover {
+.sidebar-toggle:hover,
+.sidebar-toggle-visible:hover {
     transform: scale(1.1) rotate(90deg);
     box-shadow:
         0 0 30px rgba(0, 255, 65, 0.8),

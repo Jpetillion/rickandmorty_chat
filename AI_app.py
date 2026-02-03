@@ -147,52 +147,48 @@ with st.sidebar:
             </div>
         """, unsafe_allow_html=True)
 
-# Floating Sidebar Toggle Button with better implementation
+# Floating Sidebar Toggle Button - Fixed implementation
 st.markdown("""
-    <style>
-    .sidebar-toggle-visible {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 99999;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(45deg, #00ff41, #00d9ff);
-        border: 3px solid #00ff41;
-        box-shadow: 0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 217, 255, 0.4);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: #0a0e27;
-        animation: pulseGlow 2s ease-in-out infinite;
-    }
-    .sidebar-toggle-visible:hover {
-        transform: scale(1.1) rotate(90deg);
-        box-shadow: 0 0 30px rgba(0, 255, 65, 0.8), 0 0 60px rgba(0, 217, 255, 0.6);
-    }
-    </style>
-    <div class="sidebar-toggle-visible" onclick="
-        const sidebar = document.querySelector('[data-testid=\\'stSidebar\\']');
-        const button = document.querySelector('[data-testid=\\'collapsedControl\\']');
-        if (button) {
-            button.click();
-        } else if (sidebar) {
-            const isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
-            sidebar.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
-            if (isCollapsed) {
-                sidebar.style.transform = 'translateX(0)';
-                sidebar.style.marginLeft = '0';
-            } else {
-                sidebar.style.transform = 'translateX(-21rem)';
-                sidebar.style.marginLeft = '-21rem';
-            }
-        }
-    " title="Toggle Portal History">
+    <div id="sidebar-toggle-btn" class="sidebar-toggle-visible" title="Toggle Portal History">
         ☰
     </div>
+    <script>
+    (function() {
+        function setupSidebarToggle() {
+            const toggleBtn = document.getElementById('sidebar-toggle-btn');
+            if (!toggleBtn) return;
+
+            // Remove old listeners
+            const newBtn = toggleBtn.cloneNode(true);
+            toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
+
+            newBtn.addEventListener('click', function() {
+                const sidebar = document.querySelector('[data-testid="stSidebar"]');
+                const collapseBtn = document.querySelector('[data-testid="collapsedControl"]');
+
+                if (collapseBtn) {
+                    collapseBtn.click();
+                } else if (sidebar) {
+                    // Force visibility
+                    sidebar.style.transform = 'translateX(0)';
+                    sidebar.style.marginLeft = '0';
+                    sidebar.style.display = 'block';
+                    sidebar.setAttribute('aria-expanded', 'true');
+                }
+            });
+        }
+
+        // Setup on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupSidebarToggle);
+        } else {
+            setupSidebarToggle();
+        }
+
+        // Re-setup after Streamlit reruns
+        setTimeout(setupSidebarToggle, 100);
+    })();
+    </script>
 """, unsafe_allow_html=True)
 
 # Portal Title with Font Awesome Icons
@@ -273,27 +269,25 @@ with form:
         predefined_characters,
     )
 
-    # Show custom character input if "Andere..." is selected
-    custom_character = ""
-    if character_choice == "Andere...":
-        st.markdown("""
-            <h3>
-                <i class="fas fa-user-plus" style='margin-right: 10px;'></i>
-                CUSTOM DIMENSIONAL ENTITY
-            </h3>
-        """, unsafe_allow_html=True)
-        custom_character = st.text_input(
-            "Describe your custom character:",
-            key="custom_character",
-            placeholder="e.g., een interdimensionale tijdreiziger, een quantumfysicus, ...",
-            label_visibility="visible"
-        )
+    # Always show custom character input (required when "Andere..." is selected)
+    st.markdown("""
+        <h3>
+            <i class="fas fa-user-plus" style='margin-right: 10px;'></i>
+            CUSTOM DIMENSIONAL ENTITY <span style='color: #ff00de; font-size: 0.8rem;'>(alleen als je "Andere..." koos)</span>
+        </h3>
+    """, unsafe_allow_html=True)
+
+    custom_character = st.text_input(
+        "Describe your custom character:",
+        key="custom_character",
+        placeholder="e.g., een interdimensionale tijdreiziger, een quantumfysicus, ...",
+        label_visibility="visible",
+        disabled=(character_choice != "Andere...")
+    )
 
     # Determine final character to use
-    if character_choice == "Andere..." and custom_character.strip():
-        final_character = custom_character
-    elif character_choice == "Andere...":
-        final_character = ""  # Will trigger validation error
+    if character_choice == "Andere...":
+        final_character = custom_character.strip()
     else:
         final_character = character_choice
 
@@ -337,13 +331,35 @@ with form:
 
             # Response with dramatic reveal
             st.markdown(f"""
-                <div class='response-box'>
+                <div class='response-box' id='latest-response'>
                     <p>
                         <i class="fas fa-bullseye" style='margin-right: 10px;'></i>
                         <strong>PORTAL RESPONSE:</strong>
                         <br><br>
-                        {response.replace('\n', '<br>')}
+                        <span id='response-text'>{response.replace('\n', '<br>')}</span>
                     </p>
+                </div>
+                <div style='text-align: center; margin: 20px 0;'>
+                    <button id='read-aloud-btn' onclick='window.rickSpeakText(document.getElementById("response-text").innerText)'
+                        style='
+                            background: linear-gradient(45deg, #ff00de, #00d9ff);
+                            border: 3px solid #ff00de;
+                            border-radius: 30px;
+                            color: #0a0e27;
+                            font-family: "Bungee", cursive;
+                            font-size: 1.2rem;
+                            font-weight: bold;
+                            padding: 15px 40px;
+                            cursor: pointer;
+                            box-shadow: 0 0 20px rgba(255, 0, 222, 0.6), 0 0 40px rgba(0, 217, 255, 0.4);
+                            transition: all 0.3s ease;
+                            text-transform: uppercase;
+                            letter-spacing: 2px;
+                        '
+                        onmouseover='this.style.transform="scale(1.05)"; this.style.boxShadow="0 0 30px rgba(255, 0, 222, 0.8), 0 0 60px rgba(0, 217, 255, 0.6)"'
+                        onmouseout='this.style.transform="scale(1)"; this.style.boxShadow="0 0 20px rgba(255, 0, 222, 0.6), 0 0 40px rgba(0, 217, 255, 0.4)"'>
+                        <i class="fas fa-volume-up"></i> RICK LEEST VOOR
+                    </button>
                 </div>
             """, unsafe_allow_html=True)
 

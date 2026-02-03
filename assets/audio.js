@@ -359,3 +359,104 @@ if (document.readyState === 'loading') {
 
 // Expose toggle function globally
 window.togglePortalAudio = () => portalAudio.toggleMute();
+
+// TEXT-TO-SPEECH: Rick-like voice (free, using Web Speech API)
+class RickVoice {
+    constructor() {
+        this.synth = window.speechSynthesis;
+        this.isSpeaking = false;
+    }
+
+    speak(text) {
+        if (this.isSpeaking) {
+            this.synth.cancel();
+            this.isSpeaking = false;
+            return;
+        }
+
+        if (!this.synth) {
+            console.error('Speech synthesis not supported');
+            return;
+        }
+
+        // Clean HTML from text
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = text;
+        const cleanText = tempDiv.textContent || tempDiv.innerText || '';
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+
+        // Rick's voice characteristics
+        utterance.pitch = 1.3;  // Higher pitch
+        utterance.rate = 1.2;   // Faster speech
+        utterance.volume = 1.0;
+
+        // Try to find a voice that works (prefer English for better quality)
+        const voices = this.synth.getVoices();
+        const preferredVoice = voices.find(voice =>
+            voice.lang.startsWith('en') && voice.name.includes('Male')
+        ) || voices.find(voice =>
+            voice.lang.startsWith('en')
+        ) || voices[0];
+
+        if (preferredVoice) {
+            utterance.voice = preferredVoice;
+        }
+
+        // Add random burps and stutters for Rick effect
+        utterance.onboundary = (event) => {
+            // Randomly add glitch sounds during speech
+            if (Math.random() < 0.05) {
+                portalAudio.playGlitch();
+            }
+        };
+
+        utterance.onstart = () => {
+            this.isSpeaking = true;
+            // Update button text
+            const readBtn = document.getElementById('read-aloud-btn');
+            if (readBtn) {
+                readBtn.innerHTML = '<i class="fas fa-stop"></i> STOP RICK';
+            }
+        };
+
+        utterance.onend = () => {
+            this.isSpeaking = false;
+            const readBtn = document.getElementById('read-aloud-btn');
+            if (readBtn) {
+                readBtn.innerHTML = '<i class="fas fa-volume-up"></i> RICK LEEST VOOR';
+            }
+        };
+
+        utterance.onerror = () => {
+            this.isSpeaking = false;
+            const readBtn = document.getElementById('read-aloud-btn');
+            if (readBtn) {
+                readBtn.innerHTML = '<i class="fas fa-volume-up"></i> RICK LEEST VOOR';
+            }
+        };
+
+        this.synth.speak(utterance);
+    }
+
+    stop() {
+        if (this.synth) {
+            this.synth.cancel();
+            this.isSpeaking = false;
+        }
+    }
+}
+
+// Initialize Rick voice
+const rickVoice = new RickVoice();
+
+// Load voices (Chrome needs this)
+if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+}
+
+// Expose globally
+window.rickSpeakText = (text) => rickVoice.speak(text);
+window.rickStopSpeaking = () => rickVoice.stop();

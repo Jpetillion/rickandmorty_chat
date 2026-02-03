@@ -231,6 +231,52 @@ st.markdown("""
     </p>
 """, unsafe_allow_html=True)
 
+# Character Selection OUTSIDE form (so it updates immediately)
+st.markdown("""
+    <h3>
+        <i class="fas fa-users" style='margin-right: 10px;'></i>
+        DIMENSIONAL TARGET SELECTOR
+    </h3>
+""", unsafe_allow_html=True)
+
+# Predefined characters
+predefined_characters = [
+    "Morty, van Rick and Morty",
+    "een alien uit een parallel universum",
+    "een hond met ultra hoog IQ",
+    "een bebaarde GenX-er die chocomelk drinkt",
+    "Andere..."
+]
+
+character_choice = st.selectbox(
+    "Who's this frecking crowd?",
+    predefined_characters,
+    key="character_selector"
+)
+
+# Show custom character input ONLY when "Andere..." is selected
+custom_character = ""
+if character_choice == "Andere...":
+    st.markdown("""
+        <h3>
+            <i class="fas fa-user-plus" style='margin-right: 10px;'></i>
+            CUSTOM DIMENSIONAL ENTITY
+        </h3>
+    """, unsafe_allow_html=True)
+
+    custom_character = st.text_input(
+        "Describe your custom character:",
+        key="custom_character",
+        placeholder="e.g., een interdimensionale tijdreiziger, een quantumfysicus, ...",
+        label_visibility="visible"
+    )
+
+# Determine final character to use
+if character_choice == "Andere...":
+    final_character = custom_character.strip()
+else:
+    final_character = character_choice
+
 # Main Form with Portal Styling
 form = st.form(key="user_settings")
 with form:
@@ -247,49 +293,6 @@ with form:
         placeholder="Enter your interdimensional question...",
         label_visibility="visible"
     )
-
-    st.markdown("""
-        <h3>
-            <i class="fas fa-users" style='margin-right: 10px;'></i>
-            DIMENSIONAL TARGET SELECTOR
-        </h3>
-    """, unsafe_allow_html=True)
-
-    # Predefined characters
-    predefined_characters = [
-        "Morty, van Rick and Morty",
-        "een alien uit een parallel universum",
-        "een hond met ultra hoog IQ",
-        "een bebaarde GenX-er die chocomelk drinkt",
-        "Andere..."
-    ]
-
-    character_choice = st.selectbox(
-        "Who's this frecking crowd?",
-        predefined_characters,
-    )
-
-    # Always show custom character input (required when "Andere..." is selected)
-    st.markdown("""
-        <h3>
-            <i class="fas fa-user-plus" style='margin-right: 10px;'></i>
-            CUSTOM DIMENSIONAL ENTITY <span style='color: #ff00de; font-size: 0.8rem;'>(alleen als je "Andere..." koos)</span>
-        </h3>
-    """, unsafe_allow_html=True)
-
-    custom_character = st.text_input(
-        "Describe your custom character:",
-        key="custom_character",
-        placeholder="e.g., een interdimensionale tijdreiziger, een quantumfysicus, ...",
-        label_visibility="visible",
-        disabled=(character_choice != "Andere...")
-    )
-
-    # Determine final character to use
-    if character_choice == "Andere...":
-        final_character = custom_character.strip()
-    else:
-        final_character = character_choice
 
     st.markdown("<br>", unsafe_allow_html=True)
 

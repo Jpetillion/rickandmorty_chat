@@ -17,21 +17,15 @@ def load_css(file_path):
 css_path = Path(__file__).parent / "assets" / "styles.css"
 load_css(css_path)
 
-# Load audio system JavaScript with proper initialization
+# Load audio system JavaScript directly into page (not iframe)
 audio_js_path = Path(__file__).parent / "assets" / "audio.js"
 with open(audio_js_path) as f:
     audio_js_content = f.read()
-    st.components.v1.html(f"""
+    st.markdown(f"""
         <script>
         {audio_js_content}
-        // Force initialization on load
-        setTimeout(() => {{
-            if (typeof setupAudioListeners === 'function') {{
-                setupAudioListeners();
-            }}
-        }}, 500);
         </script>
-    """, height=0, scrolling=False)
+    """, unsafe_allow_html=True)
 
 # Initialize session state for chat history
 if 'chat_history' not in st.session_state:
@@ -63,13 +57,13 @@ with st.sidebar:
 
     if st.button(f"{audio_icon} {audio_text}", use_container_width=True, key="audio_toggle"):
         st.session_state.audio_muted = not st.session_state.audio_muted
-        st.components.v1.html("""
+        st.markdown("""
             <script>
-                if (window.togglePortalAudio) {
+                if (typeof window.togglePortalAudio === 'function') {
                     window.togglePortalAudio();
                 }
             </script>
-        """, height=0)
+        """, unsafe_allow_html=True)
         st.rerun()
 
     st.markdown("<hr style='border: 1px solid rgba(0, 255, 65, 0.3); margin: 20px 0;'>", unsafe_allow_html=True)
@@ -181,16 +175,19 @@ st.markdown("""
     }
     </style>
     <div class="sidebar-toggle-visible" onclick="
-        const sidebar = window.parent.document.querySelector('[data-testid=\\'stSidebar\\']');
-        const button = window.parent.document.querySelector('[data-testid=\\'collapsedControl\\']');
-        if (button) { button.click(); }
-        else if (sidebar) {
-            if (sidebar.style.transform === 'translateX(-21rem)' || sidebar.style.marginLeft === '-21rem') {
+        const sidebar = document.querySelector('[data-testid=\\'stSidebar\\']');
+        const button = document.querySelector('[data-testid=\\'collapsedControl\\']');
+        if (button) {
+            button.click();
+        } else if (sidebar) {
+            const isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
+            sidebar.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
+            if (isCollapsed) {
                 sidebar.style.transform = 'translateX(0)';
                 sidebar.style.marginLeft = '0';
             } else {
-                sidebar.style.transform = 'translateX(0)';
-                sidebar.style.marginLeft = '0';
+                sidebar.style.transform = 'translateX(-21rem)';
+                sidebar.style.marginLeft = '-21rem';
             }
         }
     " title="Toggle Portal History">

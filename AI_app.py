@@ -17,10 +17,21 @@ def load_css(file_path):
 css_path = Path(__file__).parent / "assets" / "styles.css"
 load_css(css_path)
 
-# Load audio system JavaScript
+# Load audio system JavaScript with proper initialization
 audio_js_path = Path(__file__).parent / "assets" / "audio.js"
 with open(audio_js_path) as f:
-    st.components.v1.html(f'<script>{f.read()}</script>', height=0)
+    audio_js_content = f.read()
+    st.components.v1.html(f"""
+        <script>
+        {audio_js_content}
+        // Force initialization on load
+        setTimeout(() => {{
+            if (typeof setupAudioListeners === 'function') {{
+                setupAudioListeners();
+            }}
+        }}, 500);
+        </script>
+    """, height=0, scrolling=False)
 
 # Initialize session state for chat history
 if 'chat_history' not in st.session_state:
@@ -143,33 +154,62 @@ with st.sidebar:
         """, unsafe_allow_html=True)
 
 # Floating Sidebar Toggle Button
-st.markdown("""
-    <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Portal History">
+st.components.v1.html("""
+    <div class="sidebar-toggle" id="sidebarToggle" title="Toggle Portal History">
         <i class="fas fa-bars"></i>
     </div>
     <script>
         function toggleSidebar() {
-            const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
-            if (sidebar) {
-                const isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
-                const collapseButton = window.parent.document.querySelector('[data-testid="collapsedControl"]');
-                if (collapseButton && isCollapsed) {
-                    collapseButton.click();
+            try {
+                // Try multiple methods to find and toggle sidebar
+                const sidebar = parent.document.querySelector('[data-testid="stSidebar"]');
+                if (!sidebar) return;
+
+                // Method 1: Click collapse button
+                const collapseBtn = parent.document.querySelector('[data-testid="collapsedControl"]');
+                if (collapseBtn) {
+                    collapseBtn.click();
+                    return;
                 }
+
+                // Method 2: Toggle aria-expanded
+                const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
+                sidebar.setAttribute('aria-expanded', !isExpanded);
+
+                // Method 3: Toggle CSS
+                if (isExpanded) {
+                    sidebar.style.marginLeft = '-21rem';
+                } else {
+                    sidebar.style.marginLeft = '0';
+                }
+            } catch (e) {
+                console.log('Sidebar toggle error:', e);
             }
         }
 
+        // Setup click handler
+        const toggleBtn = document.getElementById('sidebarToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', toggleSidebar);
+        }
+
         // Auto-hide toggle button when sidebar is visible
-        setInterval(() => {
-            const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
-            const toggleBtn = document.querySelector('.sidebar-toggle');
-            if (sidebar && toggleBtn) {
-                const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
-                toggleBtn.style.display = isExpanded ? 'none' : 'flex';
+        function checkSidebarVisibility() {
+            try {
+                const sidebar = parent.document.querySelector('[data-testid="stSidebar"]');
+                const toggleBtn = document.getElementById('sidebarToggle');
+                if (sidebar && toggleBtn) {
+                    const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
+                    toggleBtn.style.display = isExpanded ? 'none' : 'flex';
+                }
+            } catch (e) {
+                // Ignore errors
             }
-        }, 100);
+        }
+
+        setInterval(checkSidebarVisibility, 200);
     </script>
-""", unsafe_allow_html=True)
+""", height=50, scrolling=False)
 
 # Portal Title with Font Awesome Icons
 st.markdown("""
@@ -270,7 +310,7 @@ with form:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    generate_button = form.form_submit_button(label="")
+    generate_button = form.form_submit_button(label="🚀 ACTIVATE PORTAL 🚀")
 
     if generate_button:
         if question.strip():  # Only proceed if question is not empty

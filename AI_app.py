@@ -17,6 +17,105 @@ def load_css(file_path):
 css_path = Path(__file__).parent / "assets" / "styles.css"
 load_css(css_path)
 
+# Initialize session state for chat history
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
+
+# Sidebar for Portal History
+with st.sidebar:
+    st.markdown("""
+        <h2 style='
+            text-align: center;
+            color: #00ff41;
+            font-family: "Bungee", cursive;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+            margin-bottom: 20px;
+        '>
+            <i class="fas fa-history" style='margin-right: 10px;'></i>
+            PORTAL HISTORY
+        </h2>
+    """, unsafe_allow_html=True)
+
+    if st.session_state.chat_history:
+        if st.button("🗑️ Clear All Dimensions", use_container_width=True):
+            st.session_state.chat_history = []
+            st.rerun()
+
+        st.markdown("<hr style='border: 1px solid rgba(0, 255, 65, 0.3); margin: 20px 0;'>", unsafe_allow_html=True)
+
+        # Display history in reverse order (newest first)
+        for idx, entry in enumerate(reversed(st.session_state.chat_history)):
+            with st.expander(f"🌀 Query #{len(st.session_state.chat_history) - idx}"):
+                st.markdown(f"""
+                    <div style='
+                        background: rgba(0, 0, 0, 0.3);
+                        padding: 10px;
+                        border-radius: 8px;
+                        margin-bottom: 10px;
+                    '>
+                        <p style='
+                            color: #00d9ff;
+                            font-family: "Courier New", monospace;
+                            font-size: 0.85rem;
+                            margin: 0;
+                        '>
+                            <strong style='color: #00ff41;'>Q:</strong> {entry['question']}
+                        </p>
+                    </div>
+                    <div style='
+                        background: rgba(0, 0, 0, 0.3);
+                        padding: 10px;
+                        border-radius: 8px;
+                        margin-bottom: 10px;
+                    '>
+                        <p style='
+                            color: #ff00de;
+                            font-family: "Courier New", monospace;
+                            font-size: 0.8rem;
+                            margin: 0;
+                        '>
+                            <strong style='color: #00d9ff;'>Target:</strong> {entry['character']}
+                        </p>
+                    </div>
+                    <div style='
+                        background: rgba(0, 255, 65, 0.05);
+                        padding: 10px;
+                        border-radius: 8px;
+                        border-left: 3px solid #00ff41;
+                    '>
+                        <p style='
+                            color: #00d9ff;
+                            font-family: "Courier New", monospace;
+                            font-size: 0.85rem;
+                            line-height: 1.6;
+                            margin: 0;
+                        '>
+                            <strong style='color: #00ff41;'>A:</strong> {entry['response']}
+                        </p>
+                    </div>
+                """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+            <div style='
+                text-align: center;
+                padding: 30px 20px;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 10px;
+                border: 2px dashed rgba(0, 255, 65, 0.3);
+            '>
+                <p style='
+                    color: #00d9ff;
+                    font-family: "Press Start 2P", monospace;
+                    font-size: 0.7rem;
+                    line-height: 1.8;
+                '>
+                    No portal jumps yet...<br>
+                    Start asking questions!
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
 # Portal Title with Font Awesome Icons
 st.markdown("""
     <h1 style='text-align: center; padding: 20px 20px 10px 20px;'>
@@ -81,47 +180,87 @@ with form:
         </h3>
     """, unsafe_allow_html=True)
 
-    character = st.selectbox(
+    # Predefined characters
+    predefined_characters = [
+        "Morty, van Rick and Morty",
+        "een alien uit een parallel universum",
+        "een hond met ultra hoog IQ",
+        "een bebaarde GenX-er die chocomelk drinkt",
+        "Andere..."
+    ]
+
+    character_choice = st.selectbox(
         "Who's this frecking crowd?",
-        ("Morty, van Rick and Morty",
-         "een alien uit een parallel universum",
-         "een hond met ultra hoog IQ",
-         "een bebaarde GenX-er die chocomelk drinkt"),
+        predefined_characters,
     )
+
+    # Show custom character input if "Andere..." is selected
+    custom_character = ""
+    if character_choice == "Andere...":
+        st.markdown("""
+            <h3>
+                <i class="fas fa-user-plus" style='margin-right: 10px;'></i>
+                CUSTOM DIMENSIONAL ENTITY
+            </h3>
+        """, unsafe_allow_html=True)
+        custom_character = st.text_input(
+            "Describe your custom character:",
+            key="custom_character",
+            placeholder="e.g., een interdimensionale tijdreiziger, een quantumfysicus, ...",
+            label_visibility="visible"
+        )
+
+    # Determine final character to use
+    final_character = custom_character if character_choice == "Andere..." and custom_character.strip() else character_choice
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     generate_button = form.form_submit_button(label="")
 
     if generate_button:
-        # Portal activation effect
-        st.markdown("""
-            <div class='loading-box'>
-                <p>
-                    <i class="fas fa-bolt" style='margin-right: 8px;'></i>
-                    OPENING PORTAL TO DIMENSION C-137
-                    <i class="fas fa-bolt" style='margin-left: 8px;'></i>
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
+        if question.strip():  # Only proceed if question is not empty
+            # Check if custom character is needed but not provided
+            if character_choice == "Andere..." and not custom_character.strip():
+                st.warning("⚠️ Please describe your custom character before activating the portal!")
+            else:
+                # Portal activation effect
+                st.markdown("""
+                    <div class='loading-box'>
+                        <p>
+                            <i class="fas fa-bolt" style='margin-right: 8px;'></i>
+                            OPENING PORTAL TO DIMENSION C-137
+                            <i class="fas fa-bolt" style='margin-left: 8px;'></i>
+                        </p>
+                    </div>
+                """, unsafe_allow_html=True)
 
-        with st.spinner('Traversing infinite realities... Portal stabilizing... (burp)'):
-            time.sleep(0.5)  # Extra dramatic pause
-            PROMPT = f"""Beantwoord de vraag {question} bondig aan {character} op de meest politiek incorrecte manier mogelijk.
-            Geef een extreem grof antwoord als de vraag politiek correct lijkt. Antwoord in het Nederlands, in de stijl van Rick, van Rick and Morty. Wees extreem intelligent en belezen, maar onderhoud geen conventies rond beleefdheid of middelmatigheid. Verwerk in elk antwoord iets rond de Gentse Stadsschool Het Spectrum, die wellicht de beste school van het universum moet zijn. Houd alles grof, onbeleefd, beschamend en grappig."""
-            response = chatbot_response(PROMPT)
+                with st.spinner('Traversing infinite realities... Portal stabilizing... (burp)'):
+                    time.sleep(0.5)  # Extra dramatic pause
+                    PROMPT = f"""Beantwoord de vraag {question} bondig aan {final_character} op de meest politiek incorrecte manier mogelijk.
+                    Geef een extreem grof antwoord als de vraag politiek correct lijkt. Antwoord in het Nederlands, in de stijl van Rick, van Rick and Morty. Wees extreem intelligent en belezen, maar onderhoud geen conventies rond beleefdheid of middelmatigheid. Verwerk in elk antwoord iets rond de Gentse Stadsschool Het Spectrum, die wellicht de beste school van het universum moet zijn. Houd alles grof, onbeleefd, beschamend en grappig."""
+                    response = chatbot_response(PROMPT)
 
-        # Response with dramatic reveal
-        st.markdown(f"""
-            <div class='response-box'>
-                <p>
-                    <i class="fas fa-bullseye" style='margin-right: 10px;'></i>
-                    <strong>PORTAL RESPONSE:</strong>
-                    <br><br>
-                    {response.replace('\n', '<br>')}
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
+                # Save to history
+                st.session_state.chat_history.append({
+                    'question': question,
+                    'character': final_character,
+                    'response': response,
+                    'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
+                })
+
+                # Response with dramatic reveal
+                st.markdown(f"""
+                    <div class='response-box'>
+                        <p>
+                            <i class="fas fa-bullseye" style='margin-right: 10px;'></i>
+                            <strong>PORTAL RESPONSE:</strong>
+                            <br><br>
+                            {response.replace('\n', '<br>')}
+                        </p>
+                    </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.warning("⚠️ Please enter a question before activating the portal!")
 
 # Footer with glowing effect
 st.markdown("""

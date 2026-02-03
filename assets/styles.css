@@ -1,0 +1,436 @@
+/* RICK & MORTY INTERDIMENSIONAL PORTAL STYLING */
+
+/* Font Imports */
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Bungee&family=Press+Start+2P&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+/* Hide Streamlit branding and menu */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* Hide anchor links next to headers */
+.stMarkdown a[href^="#"] {
+    display: none !important;
+}
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+    display: none !important;
+}
+
+/* Main background - Portal dimension */
+.stApp {
+    background: linear-gradient(45deg, #0a0e27 0%, #1a1f3a 25%, #0f1429 50%, #1e0b3d 75%, #0a0e27 100%);
+    background-size: 400% 400%;
+    animation: portalWave 15s ease infinite;
+    padding-top: 0 !important;
+}
+
+@keyframes portalWave {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Floating stars/particles */
+.stApp::before {
+    content: '';
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(2px 2px at 20% 30%, #00ff41, transparent),
+        radial-gradient(2px 2px at 60% 70%, #00d9ff, transparent),
+        radial-gradient(1px 1px at 50% 50%, #ff00de, transparent),
+        radial-gradient(1px 1px at 80% 10%, #00ff41, transparent),
+        radial-gradient(2px 2px at 90% 60%, #00d9ff, transparent);
+    background-size: 200% 200%;
+    animation: stars 20s linear infinite;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes stars {
+    from { transform: translateY(0); }
+    to { transform: translateY(-100px); }
+}
+
+/* Title - Glitchy Neon */
+h1 {
+    font-family: 'Bungee', cursive !important;
+    font-size: 3.5rem !important;
+    text-align: center !important;
+    background: linear-gradient(45deg, #00ff41, #00d9ff, #ff00de, #00ff41);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: neonGlow 3s ease infinite, glitch 5s infinite;
+    filter: drop-shadow(0 0 15px #00ff41);
+    margin-bottom: 1rem !important;
+    margin-top: 1rem !important;
+    letter-spacing: 3px !important;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes neonGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes glitch {
+    0%, 90%, 100% { transform: translate(0); }
+    92% { transform: translate(-2px, 2px); }
+    94% { transform: translate(2px, -2px); }
+    96% { transform: translate(-2px, -2px); }
+    98% { transform: translate(2px, 2px); }
+}
+
+/* Subtitle styling */
+h3 {
+    position: relative;
+    z-index: 1;
+    color: #00d9ff !important;
+    font-family: 'Bungee', cursive !important;
+    font-size: 1.3rem !important;
+    text-shadow:
+        0 0 10px rgba(0, 217, 255, 0.8),
+        0 0 20px rgba(0, 255, 65, 0.4) !important;
+    letter-spacing: 2px !important;
+    margin: 25px 0 15px 0 !important;
+    text-transform: uppercase !important;
+    border-bottom: 2px solid rgba(0, 217, 255, 0.5) !important;
+    padding-bottom: 10px !important;
+}
+
+/* Portal Image Container - Better Integration */
+[data-testid="column"] {
+    position: relative;
+    z-index: 1;
+}
+
+[data-testid="column"] img {
+    border-radius: 50% !important;
+    border: 5px solid #00ff41 !important;
+    box-shadow:
+        0 0 30px #00ff41,
+        0 0 60px #00d9ff,
+        0 0 90px #ff00de,
+        inset 0 0 30px rgba(0, 255, 65, 0.3) !important;
+    animation: portalSpin 8s linear infinite, portalPulse 2s ease-in-out infinite !important;
+    filter: saturate(1.5) brightness(1.2) !important;
+    display: block !important;
+    margin: 0 auto !important;
+    background: radial-gradient(circle, rgba(0, 255, 65, 0.2), transparent) !important;
+    padding: 10px !important;
+}
+
+@keyframes portalSpin {
+    from { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.05); }
+    to { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes portalPulse {
+    0%, 100% {
+        box-shadow:
+            0 0 30px #00ff41,
+            0 0 60px #00d9ff,
+            0 0 90px #ff00de,
+            inset 0 0 30px rgba(0, 255, 65, 0.3);
+    }
+    50% {
+        box-shadow:
+            0 0 50px #00ff41,
+            0 0 100px #00d9ff,
+            0 0 150px #ff00de,
+            inset 0 0 50px rgba(0, 255, 65, 0.5);
+    }
+}
+
+/* Form Container - Sci-Fi Panel */
+[data-testid="stForm"] {
+    background: linear-gradient(135deg, rgba(0, 255, 65, 0.05), rgba(0, 217, 255, 0.05)) !important;
+    border: 2px solid #00ff41 !important;
+    border-radius: 20px !important;
+    padding: 2rem !important;
+    box-shadow:
+        0 0 30px rgba(0, 255, 65, 0.3),
+        0 0 60px rgba(0, 217, 255, 0.2),
+        inset 0 0 30px rgba(0, 255, 65, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+[data-testid="stForm"]::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(0, 255, 65, 0.1),
+        transparent
+    );
+    animation: scanline 3s linear infinite;
+}
+
+@keyframes scanline {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(100%); }
+}
+
+/* Labels - Better Visual Separation */
+.stTextInput label, .stSelectbox label {
+    color: #00ff41 !important;
+    font-family: 'Bungee', cursive !important;
+    font-size: 1.1rem !important;
+    text-shadow:
+        0 0 10px rgba(0, 255, 65, 0.8),
+        0 0 20px rgba(0, 217, 255, 0.4) !important;
+    letter-spacing: 2px !important;
+    margin-bottom: 15px !important;
+    display: block !important;
+    padding: 10px 0 !important;
+    border-bottom: 2px solid rgba(0, 255, 65, 0.3) !important;
+    text-transform: uppercase !important;
+}
+
+/* Input Container Spacing */
+.stTextInput, .stSelectbox {
+    margin-bottom: 30px !important;
+    padding: 15px !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-radius: 15px !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Text Input - Portal Entry */
+.stTextInput input {
+    background: rgba(10, 14, 39, 0.95) !important;
+    border: 2px solid #00d9ff !important;
+    border-radius: 12px !important;
+    color: #00ff41 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 1rem !important;
+    padding: 18px 20px !important;
+    box-shadow:
+        0 0 20px rgba(0, 217, 255, 0.4),
+        inset 0 0 15px rgba(0, 255, 65, 0.1) !important;
+    transition: all 0.3s ease !important;
+    width: 100% !important;
+}
+
+.stTextInput input:focus {
+    border-color: #ff00de !important;
+    background: rgba(10, 14, 39, 1) !important;
+    box-shadow:
+        0 0 30px rgba(255, 0, 222, 0.8),
+        0 0 60px rgba(0, 255, 65, 0.4),
+        inset 0 0 20px rgba(255, 0, 222, 0.2) !important;
+    transform: scale(1.01) !important;
+    outline: none !important;
+}
+
+.stTextInput input::placeholder {
+    color: rgba(0, 217, 255, 0.5) !important;
+    font-style: italic !important;
+}
+
+/* Select Box - Dimension Selector */
+.stSelectbox select {
+    background: rgba(10, 14, 39, 0.95) !important;
+    border: 2px solid #ff00de !important;
+    border-radius: 12px !important;
+    color: #00d9ff !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 1rem !important;
+    padding: 18px 20px !important;
+    box-shadow:
+        0 0 20px rgba(255, 0, 222, 0.4),
+        inset 0 0 15px rgba(0, 217, 255, 0.1) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    width: 100% !important;
+}
+
+.stSelectbox select:hover {
+    border-color: #00ff41 !important;
+    background: rgba(10, 14, 39, 1) !important;
+    box-shadow:
+        0 0 30px rgba(0, 255, 65, 0.7),
+        0 0 60px rgba(255, 0, 222, 0.4),
+        inset 0 0 20px rgba(0, 255, 65, 0.2) !important;
+    transform: translateY(-2px) !important;
+}
+
+.stSelectbox select:focus {
+    outline: none !important;
+    border-color: #00ff41 !important;
+    box-shadow:
+        0 0 30px rgba(0, 255, 65, 0.8),
+        inset 0 0 20px rgba(0, 255, 65, 0.2) !important;
+}
+
+/* Submit Button - Portal Activator */
+.stFormSubmitButton button {
+    background: linear-gradient(45deg, #00ff41, #00d9ff, #ff00de, #00ff41) !important;
+    background-size: 300% 300% !important;
+    border: none !important;
+    border-radius: 25px !important;
+    color: #0a0e27 !important;
+    font-family: 'Bungee', cursive !important;
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    padding: 15px 50px !important;
+    box-shadow:
+        0 0 30px rgba(0, 255, 65, 0.6),
+        0 0 60px rgba(0, 217, 255, 0.4),
+        0 0 90px rgba(255, 0, 222, 0.3) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    animation: buttonGlow 3s ease infinite !important;
+    text-transform: uppercase !important;
+    letter-spacing: 3px !important;
+}
+
+.stFormSubmitButton button:hover {
+    transform: scale(1.1) rotate(2deg) !important;
+    box-shadow:
+        0 0 50px rgba(0, 255, 65, 0.9),
+        0 0 100px rgba(0, 217, 255, 0.7),
+        0 0 150px rgba(255, 0, 222, 0.5) !important;
+}
+
+.stFormSubmitButton button::before {
+    content: '\f135  ';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    margin-right: 10px;
+}
+
+.stFormSubmitButton button::after {
+    content: ' ACTIVATE PORTAL';
+    font-family: 'Bungee', cursive;
+}
+
+@keyframes buttonGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Response Container - Cleaner Design */
+.response-box {
+    background: linear-gradient(135deg, rgba(0, 255, 65, 0.08), rgba(0, 217, 255, 0.08)) !important;
+    border: 3px solid #00ff41 !important;
+    border-radius: 15px !important;
+    padding: 30px !important;
+    margin: 30px 0 !important;
+    box-shadow:
+        0 0 40px rgba(0, 255, 65, 0.4),
+        0 0 80px rgba(0, 217, 255, 0.3),
+        inset 0 0 30px rgba(0, 255, 65, 0.05) !important;
+    animation: fadeInGlow 0.8s ease-in !important;
+    position: relative;
+    z-index: 1;
+}
+
+.response-box p {
+    color: #00d9ff !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 1.15rem !important;
+    line-height: 1.9 !important;
+    text-shadow: 0 0 5px rgba(0, 217, 255, 0.5) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.response-box strong {
+    color: #00ff41 !important;
+    font-size: 1.3rem !important;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.8) !important;
+}
+
+@keyframes fadeInGlow {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading message */
+.loading-box {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 255, 65, 0.05);
+    border: 2px solid #00ff41;
+    border-radius: 12px;
+    margin: 20px 0;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.loading-box p {
+    font-family: 'Press Start 2P', monospace !important;
+    color: #00ff41 !important;
+    font-size: 0.95rem !important;
+    text-shadow: 0 0 15px rgba(0, 255, 65, 0.8) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Spinner - Portal Loading */
+.stSpinner > div {
+    border-top-color: #00ff41 !important;
+    border-right-color: #00d9ff !important;
+    border-bottom-color: #ff00de !important;
+    border-left-color: #00ff41 !important;
+    animation: portalSpinLoader 1s linear infinite !important;
+}
+
+@keyframes portalSpinLoader {
+    from { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    to { transform: rotate(360deg) scale(1); }
+}
+
+/* Scrollbar - Neon Track */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(10, 14, 39, 0.8);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00ff41, #00d9ff, #ff00de);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ff00de, #00d9ff, #00ff41);
+    box-shadow: 0 0 20px rgba(255, 0, 222, 0.8);
+}

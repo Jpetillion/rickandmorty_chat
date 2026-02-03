@@ -17,9 +17,18 @@ def load_css(file_path):
 css_path = Path(__file__).parent / "assets" / "styles.css"
 load_css(css_path)
 
+# Load audio system JavaScript
+audio_js_path = Path(__file__).parent / "assets" / "audio.js"
+with open(audio_js_path) as f:
+    st.components.v1.html(f'<script>{f.read()}</script>', height=0)
+
 # Initialize session state for chat history
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
+
+# Initialize audio mute state
+if 'audio_muted' not in st.session_state:
+    st.session_state.audio_muted = False
 
 # Sidebar for Portal History
 with st.sidebar:
@@ -36,6 +45,23 @@ with st.sidebar:
             PORTAL HISTORY
         </h2>
     """, unsafe_allow_html=True)
+
+    # Audio control button
+    audio_icon = "🔇" if st.session_state.audio_muted else "🔊"
+    audio_text = "Unmute Portal Audio" if st.session_state.audio_muted else "Mute Portal Audio"
+
+    if st.button(f"{audio_icon} {audio_text}", use_container_width=True, key="audio_toggle"):
+        st.session_state.audio_muted = not st.session_state.audio_muted
+        st.components.v1.html("""
+            <script>
+                if (window.togglePortalAudio) {
+                    window.togglePortalAudio();
+                }
+            </script>
+        """, height=0)
+        st.rerun()
+
+    st.markdown("<hr style='border: 1px solid rgba(0, 255, 65, 0.3); margin: 20px 0;'>", unsafe_allow_html=True)
 
     if st.session_state.chat_history:
         if st.button("🗑️ Clear All Dimensions", use_container_width=True):
@@ -115,6 +141,35 @@ with st.sidebar:
                 </p>
             </div>
         """, unsafe_allow_html=True)
+
+# Floating Sidebar Toggle Button
+st.markdown("""
+    <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Portal History">
+        <i class="fas fa-bars"></i>
+    </div>
+    <script>
+        function toggleSidebar() {
+            const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
+            if (sidebar) {
+                const isCollapsed = sidebar.getAttribute('aria-expanded') === 'false';
+                const collapseButton = window.parent.document.querySelector('[data-testid="collapsedControl"]');
+                if (collapseButton && isCollapsed) {
+                    collapseButton.click();
+                }
+            }
+        }
+
+        // Auto-hide toggle button when sidebar is visible
+        setInterval(() => {
+            const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            if (sidebar && toggleBtn) {
+                const isExpanded = sidebar.getAttribute('aria-expanded') === 'true';
+                toggleBtn.style.display = isExpanded ? 'none' : 'flex';
+            }
+        }, 100);
+    </script>
+""", unsafe_allow_html=True)
 
 # Portal Title with Font Awesome Icons
 st.markdown("""
